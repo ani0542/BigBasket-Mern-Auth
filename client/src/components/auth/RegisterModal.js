@@ -1,0 +1,180 @@
+
+import React, { Component } from 'react'
+import { connect } from 'react-redux';
+import {register} from '../../actions/authActions';
+import {clearErrors} from '../../actions/errorActions';
+
+
+
+import {
+    Button,
+    Modal,
+    ModalHeader,
+    ModalBody,
+    Form,
+    FormGroup,
+    Label,
+    Input,
+    NavLink,
+    Alert
+  } from 'reactstrap';
+ class RegisterModal extends Component {
+
+    state={
+        name:"",
+        modal:false,
+        email:'',
+        password:'',
+        msg:null
+    }
+
+  toggle =()=>{
+
+    //clear errors
+
+    this.props.clearErrors()
+      this.setState({
+          modal:!this.state.modal
+      })
+  }
+
+  handleChangeName=(e)=>{
+      this.setState({
+          [e.target.name]:e.target.value
+      })
+  }
+
+  handleSubmit=(e)=>{
+      e.preventDefault()
+
+      const {name,email,password} = this.state;
+
+      const newUser={
+          name:name,
+          email:email,
+          password:password
+      }
+
+
+      this.props.register(newUser)
+
+    }
+
+
+    
+
+
+    //this we r using for displaying errors
+    componentDidUpdate=(prevProps)=>{
+            const {error,isAuthenticated} = this.props;
+            if(error !== prevProps.error)
+            {
+                //check for register user
+
+                if(error.id === 'REGISTER_FAIL')
+                {
+                    this.setState({msg:error.msg.msg})
+                }
+                else
+                {
+                    this.setState({msg:null})
+                }
+            } 
+
+
+            if(this.state.modal)
+            {
+                 if(isAuthenticated)
+                 {
+                     this.toggle()
+                 }
+            }
+    }
+
+   
+    
+
+  
+    render() {
+        return (
+            <div>
+                        <NavLink onClick={this.toggle} href='#'>
+                                 Register 
+                        </NavLink>
+
+                       <Modal isOpen={this.state.modal} toggle={this.toggle}>
+                            <ModalHeader toggle={this.toggle}>Register</ModalHeader>
+                            <ModalBody>
+
+                                {this.state.msg ? (<Alert color='danger'>
+                                             {this.state.msg}
+                                   </Alert>):null}
+                           
+                            <Form  onSubmit={this.handleSubmit}>
+                                <FormGroup>
+                                <Label for="name">Name</Label>
+                                <Input
+                                    type="text"
+                                    name="name"
+                                    id="name"
+                                    placeholder="Name..."
+                                    className='mb-3'
+                                    onChange={this.handleChangeName}
+                                />
+                                 <Label for="email">Email</Label>
+                                <Input
+                                    type="email"
+                                    name="email"
+                                    id="email"
+                                    placeholder="Email..."
+                                    className='mb-3'
+                                    onChange={this.handleChangeName}
+                                />
+
+                                 <Label for="password">Password</Label>
+                                  <Input
+                                    type="pasword"
+                                    name="password"
+                                    id="email"
+                                    className='mb-3'
+                                    placeholder="Password..."
+                                    onChange={this.handleChangeName}
+                                />
+                                <Button color="dark" style={{ marginTop: '2rem' }} block>
+                                     Register
+                                </Button>
+                                </FormGroup>
+                            </Form>
+                            </ModalBody>
+                        </Modal>
+            </div>
+        )
+    }
+}
+
+
+
+
+  const mapStateToProps = (state) => {
+    console.log(state);
+    return {
+        isAuthenticated: state.auth.isAuthenticated,
+        error:state.error 
+    }
+  }
+  
+
+
+  const mapDispatchToProps = {
+    register:register,
+    clearErrors:clearErrors
+  }
+  
+
+
+export default connect(mapStateToProps,{register,clearErrors})(RegisterModal)
+// mapStateToProps, {addItem}
+
+
+
+
